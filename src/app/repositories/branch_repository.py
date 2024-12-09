@@ -22,7 +22,7 @@ class BranchRepository:
             if result is None:
                 return None
             else:
-                return [Branch(id=result[0], bank_id=result[1], name=result[2], address=result[3]) for branch in result]
+                return [Branch(id=branch[0], bank_id=branch[1], name=branch[2], address=branch[3]) for branch in result]
 
     def create_branch(self, branch: Branch):
         try:
@@ -43,7 +43,7 @@ class BranchRepository:
                 UPDATE branches
                 SET name = ?,address = ?
                 WHERE id = ?
-                ''', (branch_id, new_branch_name, new_branch_address))
+                ''', (new_branch_name, new_branch_address, branch_id))
         except Exception as e:
             raise DatabaseError(str(e))
 
@@ -55,5 +55,20 @@ class BranchRepository:
                 DELETE FROM branches
                 WHERE id = ?
                 ''', (branch_id,))
+        except Exception as e:
+            raise DatabaseError(str(e))
+
+    def fetch_branch_by_id(self, branch_id: str):
+        try:
+            conn = self.db.get_connection()
+            with conn:
+                cursor = conn.cursor()
+                cursor.execute('''
+                SELECT id, bank_id, name, address FROM branches
+                where id = ?
+                ''', (branch_id,))
+                result = cursor.fetchone()
+
+                return Branch(id=result[0], bank_id=result[1], name=result[2], address=result[3]) if result else None
         except Exception as e:
             raise DatabaseError(str(e))

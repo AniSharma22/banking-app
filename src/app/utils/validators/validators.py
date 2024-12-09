@@ -1,4 +1,5 @@
 import re
+import uuid
 
 
 class Validators:
@@ -52,7 +53,7 @@ class Validators:
         return upper_case and lower_case and special_char
 
     @staticmethod
-    def is_valid_phone_number(number: str) -> bool:
+    def is_phone_number_valid(number: str) -> bool:
         """
         Validate if the given phone number is valid.
         - Must contain exactly 10 digits
@@ -73,7 +74,7 @@ class Validators:
         return True
 
     @staticmethod
-    def is_valid_address(address: str) -> bool:
+    def is_address_valid(address: str) -> bool:
         """
         Validate if the given address is valid.
         - should be more than 6 characters and less than 30 characters
@@ -81,3 +82,24 @@ class Validators:
         :return:
         """
         return 6 <= len(address) <= 30
+
+    @staticmethod
+    def is_valid_UUID(id: str) -> bool:
+        """
+        Checks if the given string is a valid UUID.
+
+        Args:
+            id (str): The string to check.
+
+        Returns:
+            bool: True if the string is a valid UUID, False otherwise.
+        """
+        try:
+            # Attempt to create a UUID object
+            uuid_obj = uuid.UUID(id)
+            # Check if the input string matches the generated UUID's string format
+            return str(uuid_obj) == id
+        except ValueError:
+            # If a ValueError is raised, the string is not a valid UUID
+            return False
+

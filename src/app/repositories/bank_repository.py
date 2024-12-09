@@ -18,37 +18,26 @@ class BankRepository:
         except Exception as e:
             raise DatabaseError(str(e))
 
-    def delete_bank(self, bank_id: str):
-        try:
-            conn = self.db.get_connection()
-            with conn:
-                conn.execute('''
-                DELETE FROM banks
-                WHERE id = ?
-                ''', (bank_id,))
-        except Exception as e:
-            raise DatabaseError(str(e))
-
-    def get_bank_by_id(self, bank_id: str):
-        try:
-            conn = self.db.get_connection()
-            with conn:
-                cursor = conn.cursor()
-                cursor.execute('''
-                SELECT id, name FROM banks
-                WHERE id = ?
-                ''', (bank_id,))
-                result = cursor.fetchone()
-
-            if result:
-                return Bank(
-                    id=result[0],
-                    name=result[1],
-                )
-            else:
-                return None
-        except Exception as e:
-            raise DatabaseError(str(e))
+    # def get_bank_by_id(self, bank_id: str):
+    #     try:
+    #         conn = self.db.get_connection()
+    #         with conn:
+    #             cursor = conn.cursor()
+    #             cursor.execute('''
+    #             SELECT id, name FROM banks
+    #             WHERE id = ?
+    #             ''', (bank_id,))
+    #             result = cursor.fetchone()
+    #
+    #         if result:
+    #             return Bank(
+    #                 id=result[0],
+    #                 name=result[1],
+    #             )
+    #         else:
+    #             return None
+    #     except Exception as e:
+    #         raise DatabaseError(str(e))
 
     def get_all_banks(self):
         try:
@@ -104,5 +93,36 @@ class BankRepository:
                 cursor.execute('''
                 DELETE FROM banks
                 WHERE id = ?''', (bank_id,))
+        except Exception as e:
+            raise DatabaseError(str(e))
+
+    def fetch_user_banks(self, user_id: str):
+        try:
+            conn = self.db.get_connection()
+            with conn:
+                cursor = conn.cursor()
+                cursor.execute('''
+                    SELECT b.id, b.name
+                    FROM banks b
+                    INNER JOIN accounts a ON b.id = a.bank_id
+                    WHERE a.user_id = ?;    
+                ''', (user_id,))
+                results = cursor.fetchall()
+                return [Bank(id=row[0], name=row[1]) for row in results] if results else []
+        except Exception as e:
+            raise DatabaseError(str(e))
+
+    def fetch_bank_by_id(self, bank_id: str):
+        try:
+            conn = self.db.get_connection()
+            with conn:
+                cursor = conn.cursor()
+                cursor.execute('''
+                    SELECT id, name
+                    FROM banks
+                    WHERE id = ?;    
+                ''', (bank_id,))
+                results = cursor.fetchone()
+                return Bank(id=results[0], name=results[1]) if results else None
         except Exception as e:
             raise DatabaseError(str(e))

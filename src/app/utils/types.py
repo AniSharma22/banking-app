@@ -6,5 +6,5 @@ class Role(Enum):
 
 class TransactionType(Enum):
     DEPOSIT = "deposit"
-    WITHDRAWAL = "withdrawal"
+    WITHDRAW = "withdraw"
     TRANSFER = "transfer"

@@ -7,5 +7,3 @@ class Branch:
         self.bank_id = bank_id
         self.name = name
         self.address = address
-
-
