@@ -5,17 +5,21 @@ from flask import Blueprint, jsonify, g, request
 from src.app.middleware.middleware import auth_middleware
 from src.app.models.transaction import Transaction
 from src.app.services.transaction_service import TransactionService
+from src.app.utils.logger.api_logger import api_logger
+from src.app.utils.logger.logger import Logger
 
 
 @dataclass
 class TransactionHandler:
     transaction_service: TransactionService
+    logger = Logger()
 
 
     @classmethod
     def create(cls, transaction_service: TransactionService) -> 'TransactionHandler':
         return cls(transaction_service)
 
+    @api_logger(logger)
     def create_transaction(self):
         request_body = request.get_json()
         try:
@@ -40,6 +44,7 @@ class TransactionHandler:
         except Exception as e:
             return jsonify({"message": str(e)}), 400
 
+    @api_logger(logger)
     def view_transaction(self):
         try:
             user_id = g.get('user_id')

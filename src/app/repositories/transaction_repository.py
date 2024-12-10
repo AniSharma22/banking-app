@@ -1,5 +1,6 @@
 from src.app.models.transaction import Transaction
 from src.app.utils.db.db import DB
+from src.app.utils.db.query import GenericQueryBuilder
 from src.app.utils.errors.error import DatabaseError
 
 
@@ -14,10 +15,8 @@ class TransactionRepository:
             conn.execute("BEGIN TRANSACTION")
 
             # Step 1: Fetch sender's account balance
-            cursor.execute(
-                "SELECT balance FROM accounts WHERE id = ?",
-                (transaction.sender_acc_id,)
-            )
+            query, values = GenericQueryBuilder.select("accounts", ["balance"], {"id": transaction.sender_acc_id})
+            cursor.execute(query, values)
             sender_balance = cursor.fetchone()
             if not sender_balance:
                 raise ValueError("Sender account does not exist.")
@@ -28,39 +27,30 @@ class TransactionRepository:
                 raise ValueError("Insufficient funds in sender's account.")
 
             # Step 3: Get receiver's balance
-            cursor.execute(
-                "SELECT balance FROM accounts WHERE id = ?",
-                (transaction.receiver_acc_id,)
-            )
+            query, values = GenericQueryBuilder.select("accounts", ["balance"], {"id": transaction.receiver_acc_id})
+            cursor.execute(query, values)
             receiver_balance = cursor.fetchone()
             if not receiver_balance:
                 raise ValueError("Receiver account does not exist.")
             receiver_balance = receiver_balance[0]
 
             # Step 4: Update balances
-            cursor.execute(
-                "UPDATE accounts SET balance = balance - ? WHERE id = ?",
-                (transaction.amount, transaction.sender_acc_id)
-            )
-            cursor.execute(
-                "UPDATE accounts SET balance = balance + ? WHERE id = ?",
-                (transaction.amount, transaction.receiver_acc_id)
-            )
+            query, values = GenericQueryBuilder.update("accounts", {"balance": sender_balance - transaction.amount},
+                                                       {"id": transaction.sender_acc_id})
+            cursor.execute(query, values)
+            query, values = GenericQueryBuilder.update("accounts", {"balance": receiver_balance + transaction.amount},
+                                                       {"id": transaction.receiver_acc_id})
+            cursor.execute(query, values)
 
             # Step 5: Insert transaction record
-            cursor.execute(
-                """
-                INSERT INTO transactions (id, amount, transaction_type, sender_acc_id, receiver_acc_id)
-                VALUES (?, ?, ?, ?, ?)
-                """,
-                (
-                    transaction.id,
-                    transaction.amount,
-                    transaction.transaction_type,
-                    transaction.sender_acc_id,
-                    transaction.receiver_acc_id
-                )
-            )
+            query, values = GenericQueryBuilder.insert("transactions", {
+                "id": transaction.id,
+                "amount": transaction.amount,
+                "transaction_type": transaction.transaction_type,
+                "sender_acc_id": transaction.sender_acc_id,
+                "receiver_acc_id": transaction.receiver_acc_id,
+            })
+            cursor.execute(query, values)
 
             # Commit the transaction
             conn.commit()
@@ -76,35 +66,27 @@ class TransactionRepository:
             conn.execute("BEGIN TRANSACTION")
 
             # Step 1: Get the receiver's balance
-            cursor.execute(
-                "SELECT balance FROM accounts WHERE id = ?",
-                (transaction.receiver_acc_id,)
-            )
+            query, values = GenericQueryBuilder.select("accounts", ["balance"], {"id": transaction.receiver_acc_id})
+            cursor.execute(query, values)
             receiver_balance = cursor.fetchone()
             if not receiver_balance:
                 raise ValueError("Receiver account does not exist.")
             receiver_balance = receiver_balance[0]
 
             # Step 2: Update the receiver's balance
-            cursor.execute(
-                "UPDATE accounts SET balance = balance + ? WHERE id = ?",
-                (transaction.amount, transaction.receiver_acc_id)
-            )
+            query, values = GenericQueryBuilder.update("accounts", {"balance": receiver_balance + transaction.amount},
+                                                       {"id": transaction.receiver_acc_id})
+            cursor.execute(query, values)
 
             # Step 3: Insert transaction record
-            cursor.execute(
-                """
-                INSERT INTO transactions (id, amount, transaction_type, sender_acc_id, receiver_acc_id)
-                VALUES (?, ?, ?, ?, ?)
-                """,
-                (
-                    transaction.id,
-                    transaction.amount,
-                    transaction.transaction_type,
-                    transaction.sender_acc_id,
-                    transaction.receiver_acc_id
-                )
-            )
+            query, values = GenericQueryBuilder.insert("transactions", {
+                "id": transaction.id,
+                "amount": transaction.amount,
+                "transaction_type": transaction.transaction_type,
+                "sender_acc_id": transaction.sender_acc_id,
+                "receiver_acc_id": transaction.receiver_acc_id,
+            })
+            cursor.execute(query, values)
 
             # Commit the transaction
             conn.commit()
@@ -120,10 +102,8 @@ class TransactionRepository:
             conn.execute("BEGIN TRANSACTION")
 
             # Step 1: Fetch sender's account balance
-            cursor.execute(
-                "SELECT balance FROM accounts WHERE id = ?",
-                (transaction.sender_acc_id,)
-            )
+            query, values = GenericQueryBuilder.select("accounts", ["balance"], {"id": transaction.sender_acc_id})
+            cursor.execute(query, values)
             sender_balance = cursor.fetchone()
             if not sender_balance:
                 raise ValueError("Sender account does not exist.")
@@ -134,25 +114,19 @@ class TransactionRepository:
                 raise ValueError("Insufficient funds in sender's account.")
 
             # Step 3: Update balances
-            cursor.execute(
-                "UPDATE accounts SET balance = balance - ? WHERE id = ?",
-                (transaction.amount, transaction.sender_acc_id)
-            )
+            query, values = GenericQueryBuilder.update("accounts", {"balance": sender_balance - transaction.amount},
+                                                       {"id": transaction.sender_acc_id})
+            cursor.execute(query, values)
 
             # Step 4: Insert transaction record
-            cursor.execute(
-                """
-                INSERT INTO transactions (id, amount, transaction_type, sender_acc_id, receiver_acc_id)
-                VALUES (?, ?, ?, ?, ?)
-                """,
-                (
-                    transaction.id,
-                    transaction.amount,
-                    transaction.transaction_type,
-                    transaction.sender_acc_id,
-                    transaction.receiver_acc_id
-                )
-            )
+            query, values = GenericQueryBuilder.insert("transactions", {
+                "id": transaction.id,
+                "amount": transaction.amount,
+                "transaction_type": transaction.transaction_type,
+                "sender_acc_id": transaction.sender_acc_id,
+                "receiver_acc_id": transaction.receiver_acc_id,
+            })
+            cursor.execute(query, values)
 
             # Commit the transaction
             conn.commit()
@@ -165,12 +139,12 @@ class TransactionRepository:
         try:
             conn = self.db.get_connection()
             cursor = conn.cursor()
-            cursor.execute('''
-                SELECT id, amount, transaction_type, sender_acc_id, receiver_acc_id, timestamp 
-                FROM transactions
-                WHERE sender_acc_id = ? OR receiver_acc_id = ?
-                ORDER BY timestamp DESC
-            ''', (account_id, account_id))
+            query, values = GenericQueryBuilder.select("transactions",
+                                                       ["id", "amount", "transaction_type", "sender_acc_id",
+                                                        "receiver_acc_id", "timestamp"],
+                                                       {"sender_acc_id": account_id, "receiver_acc_id": account_id},
+                                                       "timestamp")
+            cursor.execute(query, values)
 
             transactions = cursor.fetchall()
             return [Transaction(id=transaction[0], amount=transaction[1], transaction_type=transaction[2],

@@ -10,7 +10,7 @@ class BankService:
         self.bank_repository = bank_repository
 
     def get_available_banks_for_user(self, user_id: str) -> List[Bank]:
-        return self.bank_repository.get_new_banks_for_user(user_id)
+            return self.bank_repository.get_new_banks_for_user(user_id)
 
     def get_user_banks(self, user_id: str) -> List[Bank]:
         return self.bank_repository.fetch_user_banks(user_id)

@@ -8,3 +8,13 @@ class Account:
         self.branch_id = branch_id
         self.bank_id = bank_id
         self.balance = balance
+
+    def __repr__(self):
+        return (
+            f"Account("
+            f"id='{self.id}', "
+            f"user_id='{self.user_id}', "
+            f"branch_id='{self.branch_id}', "
+            f"bank_id='{self.bank_id}', "
+            f"balance={self.balance})"
+        )

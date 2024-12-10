@@ -1,5 +1,6 @@
 from src.app.models.bank import Bank
 from src.app.utils.db.db import DB
+from src.app.utils.db.query import GenericQueryBuilder
 from src.app.utils.errors.error import DatabaseError
 
 
@@ -11,42 +12,18 @@ class BankRepository:
         try:
             conn = self.db.get_connection()
             with conn:
-                conn.execute('''
-                INSERT INTO banks (id, name)
-                VALUES (?, ?);
-                ''', (bank.id, bank.name))
+                query, values = GenericQueryBuilder.insert("banks", {"id": bank.id, "name": bank.name})
+                conn.execute(query, values)
         except Exception as e:
             raise DatabaseError(str(e))
-
-    # def get_bank_by_id(self, bank_id: str):
-    #     try:
-    #         conn = self.db.get_connection()
-    #         with conn:
-    #             cursor = conn.cursor()
-    #             cursor.execute('''
-    #             SELECT id, name FROM banks
-    #             WHERE id = ?
-    #             ''', (bank_id,))
-    #             result = cursor.fetchone()
-    #
-    #         if result:
-    #             return Bank(
-    #                 id=result[0],
-    #                 name=result[1],
-    #             )
-    #         else:
-    #             return None
-    #     except Exception as e:
-    #         raise DatabaseError(str(e))
 
     def get_all_banks(self):
         try:
             conn = self.db.get_connection()
             with conn:
                 cursor = conn.cursor()
-                cursor.execute('''
-                SELECT id, name FROM banks
-                ''')
+                query, values = GenericQueryBuilder.select("banks", ["id", "name"])
+                cursor.execute(query, values)
                 results = cursor.fetchall()
 
             return [Bank(id=bank[0], name=bank[1]) for bank in results] if results else []
@@ -78,10 +55,8 @@ class BankRepository:
             conn = self.db.get_connection()
             with conn:
                 cursor = conn.cursor()
-                cursor.execute('''
-                UPDATE banks
-                SET name = ?
-                WHERE id = ?''', (new_bank_name, bank_id))
+                query, values = GenericQueryBuilder.update("banks", {"name": new_bank_name}, {"id": bank_id})
+                cursor.execute(query, values)
         except Exception as e:
             raise DatabaseError(str(e))
 
@@ -90,9 +65,8 @@ class BankRepository:
             conn = self.db.get_connection()
             with conn:
                 cursor = conn.cursor()
-                cursor.execute('''
-                DELETE FROM banks
-                WHERE id = ?''', (bank_id,))
+                query, values = GenericQueryBuilder.delete("banks", {"id": bank_id})
+                cursor.execute(query, values)
         except Exception as e:
             raise DatabaseError(str(e))
 
@@ -117,11 +91,8 @@ class BankRepository:
             conn = self.db.get_connection()
             with conn:
                 cursor = conn.cursor()
-                cursor.execute('''
-                    SELECT id, name
-                    FROM banks
-                    WHERE id = ?;    
-                ''', (bank_id,))
+                query, values = GenericQueryBuilder.select("banks", ["id", "name"], {"id": bank_id})
+                cursor.execute(query, values)
                 results = cursor.fetchone()
                 return Bank(id=results[0], name=results[1]) if results else None
         except Exception as e:

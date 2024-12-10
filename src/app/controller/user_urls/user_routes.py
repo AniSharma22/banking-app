@@ -4,18 +4,22 @@ from dataclasses import dataclass
 
 from src.app.models.user import User
 from src.app.services.user_service import UserService
+from src.app.utils.logger.api_logger import api_logger
 from src.app.utils.utils import Utils
 from src.app.utils.validators.validators import Validators
+from src.app.utils.logger.logger import Logger
 
 
 @dataclass
 class UserHandler:
     user_service: UserService
+    logger = Logger()
 
     @classmethod
     def create(cls, user_service):
         return cls(user_service)
 
+    @api_logger(logger)
     def login(self):
         request_body = request.get_json()
         try:
@@ -31,6 +35,7 @@ class UserHandler:
         except Exception as e:
             return jsonify({"message": str(e)}), 400
 
+    @api_logger(logger)
     def signup(self):
         request_body = request.get_json()
         try:

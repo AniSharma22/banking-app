@@ -2,6 +2,7 @@ from typing import Union, List
 
 from src.app.models.branch import Branch
 from src.app.utils.db.db import DB
+from src.app.utils.db.query import GenericQueryBuilder
 from src.app.utils.errors.error import DatabaseError
 
 
@@ -13,10 +14,9 @@ class BranchRepository:
         conn = self.db.get_connection()
         with conn:
             cursor = conn.cursor()
-            cursor.execute('''
-            SELECT id, bank_id, name, address FROM branches
-            WHERE bank_id = ?
-            ''', (bank_id,))
+            query, values = GenericQueryBuilder.select("branches", ["id", "bank_id", "name", "address"],
+                                                       {"bank_id": bank_id})
+            cursor.execute(query, values)
 
             result = cursor.fetchall()
             if result is None:
@@ -28,10 +28,9 @@ class BranchRepository:
         try:
             conn = self.db.get_connection()
             with conn:
-                conn.execute('''
-                INSERT INTO branches(id,bank_id, name, address)
-                VALUES (?,?,?,?);
-                ''', (branch.id, branch.bank_id, branch.name, branch.address))
+                query, values = GenericQueryBuilder.insert("branches", {"id": branch.id, "bank_id": branch.bank_id,
+                                                                        "name": branch.name, "address": branch.address})
+                conn.execute(query, values)
         except Exception as e:
             raise DatabaseError(str(e))
 
@@ -39,11 +38,10 @@ class BranchRepository:
         try:
             conn = self.db.get_connection()
             with conn:
-                conn.execute('''
-                UPDATE branches
-                SET name = ?,address = ?
-                WHERE id = ?
-                ''', (new_branch_name, new_branch_address, branch_id))
+                query, values = GenericQueryBuilder.update("branches",
+                                                           {"name": new_branch_name, "address": new_branch_address},
+                                                           {"id": branch_id})
+                conn.execute(query, values)
         except Exception as e:
             raise DatabaseError(str(e))
 
@@ -51,10 +49,8 @@ class BranchRepository:
         try:
             conn = self.db.get_connection()
             with conn:
-                conn.execute('''
-                DELETE FROM branches
-                WHERE id = ?
-                ''', (branch_id,))
+                query, values = GenericQueryBuilder.delete("branches", {"id": branch_id})
+                conn.execute(query, values)
         except Exception as e:
             raise DatabaseError(str(e))
 
@@ -63,10 +59,9 @@ class BranchRepository:
             conn = self.db.get_connection()
             with conn:
                 cursor = conn.cursor()
-                cursor.execute('''
-                SELECT id, bank_id, name, address FROM branches
-                where id = ?
-                ''', (branch_id,))
+                query, values = GenericQueryBuilder.select("branches", ["id", "bank_id", "name", "address"],
+                                                           {"id": branch_id})
+                cursor.execute(query, values)
                 result = cursor.fetchone()
 
                 return Branch(id=result[0], bank_id=result[1], name=result[2], address=result[3]) if result else None

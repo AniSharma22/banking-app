@@ -5,18 +5,22 @@ from flask import Blueprint, request, jsonify, g
 from src.app.middleware.middleware import auth_middleware
 from src.app.models.branch import Branch
 from src.app.services.branch_service import BranchService
+from src.app.utils.logger.api_logger import api_logger
 from src.app.utils.utils import Utils
+from src.app.utils.logger.logger import Logger
 
 
 @dataclass
 class BranchHandler:
     branch_service: BranchService
+    logger = Logger()
 
     @classmethod
     def create(cls, branch_service: BranchService) -> 'BranchHandler':
         return cls(branch_service)
 
     @Utils.admin
+    @api_logger(logger)
     def create_branch(self):
         request_body = request.get_json()
         try:
@@ -38,6 +42,7 @@ class BranchHandler:
             return jsonify({"message": str(e)}), 400
 
     @Utils.admin
+    @api_logger(logger)
     def update_branch(self, branch_id):
         request_body = request.get_json()
         try:
@@ -52,6 +57,7 @@ class BranchHandler:
             return jsonify({"message": str(e)}), 400
 
     @Utils.admin
+    @api_logger(logger)
     def delete_branch(self, branch_id):
         try:
             if branch_id is None:
@@ -62,6 +68,7 @@ class BranchHandler:
         except Exception as e:
             return jsonify({"message": str(e)}), 400
 
+    @api_logger(logger)
     def get_bank_branches(self, bank_id):
         try:
             if bank_id is None:
@@ -107,6 +114,5 @@ def create_branch_routes(branch_service: BranchService):
         branch_handler.get_bank_branches,
         methods=['GET']
     )
-
 
     return branch_routes_blueprint

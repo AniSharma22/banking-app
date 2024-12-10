@@ -5,18 +5,22 @@ from flask import Blueprint, request, jsonify, g
 from src.app.middleware.middleware import auth_middleware
 from src.app.models.bank import Bank
 from src.app.services.bank_service import BankService
+from src.app.utils.logger.api_logger import api_logger
 from src.app.utils.utils import Utils
+from src.app.utils.logger.logger import Logger
 
 
 @dataclass
 class BankHandler:
     bank_service: BankService
+    logger: Logger = Logger()
 
     @classmethod
     def create(cls, bank_service: BankService) -> 'BankHandler':
         return cls(bank_service)
 
     @Utils.admin
+    @api_logger(logger)
     def create_bank(self):
         request_body = request.get_json()
         try:
@@ -32,6 +36,7 @@ class BankHandler:
             return jsonify({"message": str(e)}), 400
 
     @Utils.admin
+    @api_logger(logger)
     def update_bank(self, bank_id):
         try:
             bank_name = request.args.get('new-bank-name')
@@ -48,6 +53,7 @@ class BankHandler:
             return jsonify({"message": str(e)}), 400
 
     @Utils.admin
+    @api_logger(logger)
     def delete_bank(self, bank_id):
         try:
             if not bank_id:
@@ -58,6 +64,7 @@ class BankHandler:
         except Exception as e:
             return jsonify({"message": str(e)}), 400
 
+    @api_logger(logger)
     def get_all_banks(self):
         try:
             banks = self.bank_service.get_all_banks()
@@ -65,6 +72,7 @@ class BankHandler:
         except Exception as e:
             return jsonify({"message": str(e)}), 400
 
+    @api_logger(logger)
     def get_user_banks(self):
         try:
             user_id = g.get("user_id")
@@ -73,6 +81,7 @@ class BankHandler:
         except Exception as e:
             return jsonify({"message": str(e)}), 400
 
+    @api_logger(logger)
     def get_available_banks_for_user(self):
         try:
             user_id = g.get("user_id")

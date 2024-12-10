@@ -2,6 +2,7 @@ from typing import Optional
 from src.app.models.user import User
 from src.app.utils.db.db import DB
 from src.app.utils.errors.error import DatabaseError
+from src.app.utils.db.query import GenericQueryBuilder
 
 
 class UserRepository:
@@ -14,10 +15,16 @@ class UserRepository:
         try:
             conn = self.db.get_connection()
             with conn:
-                conn.execute('''
-                    INSERT INTO users (id, name, email, password, phone_no, address, role)
-                    VALUES (?, ?, ?, ?, ?, ?, ?);
-                ''', (user.id, user.name, user.email, user.password, user.phone_no, user.address, user.role))
+                query, values = GenericQueryBuilder.insert("users", {
+                    "id": user.id,
+                    "name": user.name,
+                    "email": user.email,
+                    "password": user.password,
+                    "phone_no": user.phone_no,
+                    "address": user.address,
+                    "role": user.role,
+                })
+                conn.execute(query, values)
         except Exception as e:
             raise DatabaseError(str(e))
 
@@ -27,11 +34,12 @@ class UserRepository:
             conn = self.db.get_connection()
             with conn:
                 cursor = conn.cursor()
-                cursor.execute('''
-                    SELECT id, name, email, password, phone_no, address, role
-                    FROM users
-                    WHERE email = ?;
-                ''', (email,))
+                query, values = GenericQueryBuilder.select("users",
+                                                           ["id", "name", "email", "password", "phone_no", "address",
+                                                            "role"], {
+                                                               "email": email,
+                                                           })
+                cursor.execute(query, values)
                 result = cursor.fetchone()
 
             if result:

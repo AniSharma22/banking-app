@@ -5,16 +5,20 @@ from flask import Blueprint, jsonify, g, request
 from src.app.middleware.middleware import auth_middleware
 from src.app.models.account import Account
 from src.app.services.account_service import AccountService
+from src.app.utils.logger.api_logger import api_logger
+from src.app.utils.logger.logger import Logger
 
 
 @dataclass
 class AccountHandler:
     account_service: AccountService
+    logger: Logger = Logger()
 
     @classmethod
     def create(cls, account_service: AccountService) -> 'AccountHandler':
         return cls(account_service)
 
+    @api_logger(logger)
     def create_account(self):
         request_body = request.get_json()
         try:
@@ -32,12 +36,12 @@ class AccountHandler:
         except Exception as e:
             return jsonify({"message": str(e)}), 400
 
+    @api_logger(logger)
     def get_user_accounts(self):
         try:
             user_id = g.get('user_id')
             accounts = self.account_service.get_user_accounts(user_id)
             return jsonify({'accounts': [account.__dict__ for account in accounts] if accounts else []}), 201
-
         except Exception as e:
             return jsonify({"message": str(e)}), 400
 

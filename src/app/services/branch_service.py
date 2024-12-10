@@ -18,7 +18,7 @@ class BranchService:
     def create_new_branch(self, branch: Branch):
         self.branch_repository.create_branch(branch)
 
-    def update_branch_details(self, branch_id: str, new_branch_name: str, new_branch_address: str):
+    def update_branch_details(self, branch_id: str, new_branch_name, new_branch_address):
         # check if branch exists
         branch = self.get_branch_by_id(branch_id)
         if branch is None:
