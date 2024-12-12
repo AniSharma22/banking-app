@@ -82,24 +82,3 @@ class Validators:
         :return:
         """
         return 6 <= len(address) <= 30
-
-    @staticmethod
-    def is_valid_UUID(id: str) -> bool:
-        """
-        Checks if the given string is a valid UUID.
-
-        Args:
-            id (str): The string to check.
-
-        Returns:
-            bool: True if the string is a valid UUID, False otherwise.
-        """
-        try:
-            # Attempt to create a UUID object
-            uuid_obj = uuid.UUID(id)
-            # Check if the input string matches the generated UUID's string format
-            return str(uuid_obj) == id
-        except ValueError:
-            # If a ValueError is raised, the string is not a valid UUID
-            return False
-

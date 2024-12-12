@@ -13,6 +13,18 @@ class Transaction:
         self.transaction_type = transaction_type
         self.time_stamp = time_stamp
 
+    def __eq__(self, other):
+        if isinstance(other, Transaction):
+            return (
+                    self.id == other.id and
+                    self.sender_acc_id == other.sender_acc_id and
+                    self.receiver_acc_id == other.receiver_acc_id and
+                    self.amount == other.amount and
+                    self.time_stamp == other.time_stamp and
+                    self.transaction_type == other.transaction_type
+            )
+        return False
+
     def __repr__(self):
         return (
             f"Transaction("

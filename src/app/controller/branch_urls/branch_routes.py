@@ -75,7 +75,6 @@ class BranchHandler:
                 raise ValueError("bank id cannot be empty")
 
             branches = self.branch_service.get_bank_branches(bank_id)
-            print(branches)
             return jsonify({"bank_branches": [branch.__dict__ for branch in branches] if branches else []}), 200
         except Exception as e:
             return jsonify({"message": str(e)}), 400

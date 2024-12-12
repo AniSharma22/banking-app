@@ -8,6 +8,16 @@ class Branch:
         self.name = name
         self.address = address
 
+    def __eq__(self, other):
+        if isinstance(other, Branch):
+            return (
+                    self.id == other.id and
+                    self.bank_id == other.bank_id and
+                    self.name == other.name and
+                    self.address == other.address
+            )
+        return False
+
     def __repr__(self):
         return (
             f"Branch("

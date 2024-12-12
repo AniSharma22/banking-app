@@ -14,7 +14,6 @@ class TransactionHandler:
     transaction_service: TransactionService
     logger = Logger()
 
-
     @classmethod
     def create(cls, transaction_service: TransactionService) -> 'TransactionHandler':
         return cls(transaction_service)
@@ -54,7 +53,7 @@ class TransactionHandler:
 
             transactions = self.transaction_service.view_transactions(user_id, account_id)
             return jsonify(
-                {"transactions": [transaction.__dict__ for transaction in transactions] if transactions else []})
+                {"transactions": [transaction.__dict__ for transaction in transactions] if transactions else []}), 200
 
         except Exception as e:
             return jsonify({"message": str(e)}), 400
@@ -81,7 +80,3 @@ def create_transaction_routes(transaction_service: TransactionService):
     )
 
     return transaction_routes_blueprint
-
-
-
-

@@ -3,6 +3,10 @@ from flask import request, jsonify, g
 
 from src.app.utils.utils import Utils
 
+from flask import request, jsonify, g
+
+from src.app.utils.utils import Utils
+
 
 def auth_middleware():
     if request.path in ['/user/login', '/user/signup']:
@@ -32,3 +36,5 @@ def auth_middleware():
         return jsonify({'error': 'Unauthorized, token has expired'}), 401
     except jwt.InvalidTokenError:
         return jsonify({'error': 'Unauthorized, invalid token'}), 401
+    except Exception as e:
+        return jsonify({'error': str(e)}), 401

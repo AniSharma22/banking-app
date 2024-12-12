@@ -22,8 +22,8 @@ class BankRepository:
             conn = self.db.get_connection()
             with conn:
                 cursor = conn.cursor()
-                query, values = GenericQueryBuilder.select("banks", ["id", "name"])
-                cursor.execute(query, values)
+                query = GenericQueryBuilder.select("banks", ["id", "name"])
+                cursor.execute(query)
                 results = cursor.fetchall()
 
             return [Bank(id=bank[0], name=bank[1]) for bank in results] if results else []

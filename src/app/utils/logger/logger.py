@@ -16,7 +16,7 @@ class Logger:
 
     def _initialize_logger(self):
         self.logger = logging.getLogger("ThreadSafeLogger")
-        self.logger.setLevel(logging.DEBUG)  # Set to the lowest level to capture all logs
+        self.logger.setLevel(logging.DEBUG)
 
         # Rotating File Handler (Thread-Safe)
         file_handler = RotatingFileHandler('app.log')

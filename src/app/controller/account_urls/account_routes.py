@@ -32,7 +32,7 @@ class AccountHandler:
 
             account = Account(user_id, branch_id, bank_id)
             self.account_service.create_new_account(account)
-            return jsonify({'message': 'Account created'}), 201
+            return jsonify({'message': 'Account created'}), 200
         except Exception as e:
             return jsonify({"message": str(e)}), 400
 
@@ -41,7 +41,7 @@ class AccountHandler:
         try:
             user_id = g.get('user_id')
             accounts = self.account_service.get_user_accounts(user_id)
-            return jsonify({'accounts': [account.__dict__ for account in accounts] if accounts else []}), 201
+            return jsonify({'accounts': [account.__dict__ for account in accounts] if accounts else []}), 200
         except Exception as e:
             return jsonify({"message": str(e)}), 400
 

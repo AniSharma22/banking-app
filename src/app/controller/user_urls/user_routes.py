@@ -33,6 +33,7 @@ class UserHandler:
             token = Utils.create_jwt_token(user.id, user.role)
             return jsonify({'token': token, 'role': user.role}), 200
         except Exception as e:
+            print(f"Login error: {str(e)}")  # Add this line
             return jsonify({"message": str(e)}), 400
 
     @api_logger(logger)

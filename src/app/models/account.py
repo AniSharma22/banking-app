@@ -9,6 +9,17 @@ class Account:
         self.bank_id = bank_id
         self.balance = balance
 
+    def __eq__(self, other):
+        if isinstance(other, Account):
+            return (
+                    self.id == other.id and
+                    self.user_id == other.user_id and
+                    self.branch_id == other.branch_id and
+                    self.bank_id == other.bank_id and
+                    self.balance == other.balance
+            )
+        return False
+
     def __repr__(self):
         return (
             f"Account("

@@ -39,15 +39,15 @@ class BankHandler:
     @api_logger(logger)
     def update_bank(self, bank_id):
         try:
-            bank_name = request.args.get('new-bank-name')
-            if not bank_name:
-                raise ValueError("bank name cannot be empty")
-            if not bank_name:
-                raise ValueError("bank name cannot be empty")
             if not bank_id:
                 raise ValueError("bank id cannot be empty")
 
-            self.bank_service.update_bank(bank_id, bank_name)
+            new_bank_name = request.args.get('new-bank-name')
+            if not new_bank_name:
+                raise ValueError("bank name cannot be empty")
+
+
+            self.bank_service.update_bank(bank_id, new_bank_name)
             return jsonify({"message": "Bank updated successfully"}), 200
         except Exception as e:
             return jsonify({"message": str(e)}), 400

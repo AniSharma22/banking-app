@@ -42,9 +42,11 @@ class GenericQueryBuilder:
         if where:
             where_clause = "OR ".join([f"{key} = ?" for key in where.keys()])
             query += f" WHERE {where_clause}"
+
         if order_by:
             query += f" ORDER BY {order_by} DESC"
         if limit:
             query += f" LIMIT {limit}"
-        values = list(where.values())
+        values = [val for val in where.values()] if where else []
+
         return query, values
