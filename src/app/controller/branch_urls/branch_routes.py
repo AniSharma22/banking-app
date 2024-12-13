@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-
-from flask import Blueprint, request, jsonify, g
+from flask import Blueprint, request, jsonify
 
 from src.app.middleware.middleware import auth_middleware
 from src.app.models.branch import Branch
@@ -34,7 +33,11 @@ class BranchHandler:
             if not bank_id:
                 raise ValueError("bank id cannot be empty")
 
-            new_branch = Branch(name=branch_name, address=branch_address, bank_id=bank_id)
+            new_branch = Branch(
+                name=branch_name,
+                address=branch_address,
+                bank_id=bank_id
+            )
 
             self.branch_service.create_new_branch(new_branch)
             return jsonify({"message": "Branch created successfully"}), 200

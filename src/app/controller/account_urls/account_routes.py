@@ -41,7 +41,13 @@ class AccountHandler:
         try:
             user_id = g.get('user_id')
             accounts = self.account_service.get_user_accounts(user_id)
-            return jsonify({'accounts': [account.__dict__ for account in accounts] if accounts else []}), 200
+            return jsonify(
+                {
+                    'accounts':
+                        [account.__dict__ for account in accounts]
+                        if accounts else []
+                }
+            ), 200
         except Exception as e:
             return jsonify({"message": str(e)}), 400
 

@@ -42,3 +42,17 @@ class Logger:
 
     def debug(self, message: str):
         self.logger.debug(message)
+
+    def sanitize_body(self, body):
+        """
+        Redacts sensitive information like passwords from the request body.
+        """
+        if not isinstance(body, dict):
+            return body
+
+        redacted_body = body.copy()
+        sensitive_keys = {"password", "token", "secret"}  # Add other sensitive keys as needed
+        for key in sensitive_keys:
+            if key in redacted_body:
+                redacted_body[key] = "***"  # Mask the sensitive value
+        return redacted_body

@@ -46,7 +46,6 @@ class BankHandler:
             if not new_bank_name:
                 raise ValueError("bank name cannot be empty")
 
-
             self.bank_service.update_bank(bank_id, new_bank_name)
             return jsonify({"message": "Bank updated successfully"}), 200
         except Exception as e:
@@ -68,7 +67,13 @@ class BankHandler:
     def get_all_banks(self):
         try:
             banks = self.bank_service.get_all_banks()
-            return jsonify({"banks": [bank.__dict__ for bank in banks] if banks else []}), 200
+            return jsonify(
+                {
+                    "banks":
+                        [bank.__dict__ for bank in banks]
+                        if banks else []
+                }
+            ), 200
         except Exception as e:
             return jsonify({"message": str(e)}), 400
 
@@ -77,7 +82,11 @@ class BankHandler:
         try:
             user_id = g.get("user_id")
             banks = self.bank_service.get_user_banks(user_id)
-            return jsonify({"banks": [bank.__dict__ for bank in banks] if banks else []}), 200
+            return jsonify(
+                {
+                    "banks": [bank.__dict__ for bank in banks] if banks else []
+                }
+            ), 200
         except Exception as e:
             return jsonify({"message": str(e)}), 400
 
@@ -86,7 +95,11 @@ class BankHandler:
         try:
             user_id = g.get("user_id")
             banks = self.bank_service.get_available_banks_for_user(user_id)
-            return jsonify({"banks": [bank.__dict__ for bank in banks] if banks else []}), 200
+            return jsonify(
+                {
+                    "banks": [bank.__dict__ for bank in banks] if banks else []
+                }
+            ), 200
         except Exception as e:
             return jsonify({"message": str(e)}), 400
 
